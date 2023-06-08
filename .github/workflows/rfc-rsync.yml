@@ -1,0 +1,26 @@
+name: Sync RFCs
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  sync:
+    name: Sync RFCs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Sync RFCs
+        run: rsync -avz --delete rsync.ietf.org::rfc/rfc[0-9]*.xml ./rfc/
+
+      - name: Commit changes
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "chore: Sync RFCs"
+          git push origin HEAD
+
