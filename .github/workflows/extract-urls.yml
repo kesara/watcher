@@ -1,0 +1,38 @@
+name: Extract URLs
+
+on:
+  workflow_run:
+    workflows: [rfc-rsync]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  extract-attributes:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Extract URLs and save as CSV
+      run: python find-urls.py
+
+    - name: Commit changes
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add csv/*
+        git commit -m "chore: Add daily URL extract"
+        git push origin HEAD
+
