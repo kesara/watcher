@@ -1,9 +1,12 @@
+from csv import writer as csv_writer
+from datetime import date
 from os import listdir, path
 from lxml import etree
 from urllib.parse import urlparse
 
 
 RFC_DIRECTORY = "rfc"
+CSV_DIRECTORY = "csv"
 URL_ATTRIBUTES = [
     "href",
     "target",
@@ -18,31 +21,37 @@ URL_ELEMENTS = [
 def is_valid_url(url):
     try:
         result = urlparse(url)
-        return all([result.scheme, result.netloc])
+        return all([len(result.scheme) > 0, result.netloc])
     except ValueError:
         return False
 
 
-def find_urls(directory):
-    for filename in listdir(directory):
-        if filename.endswith(".xml"):
-            print(filename)
-            urls = []
-            filepath = path.join(directory, filename)
-            try:
-                tree = etree.parse(filepath)
-                url_elements = tree.xpath(
-                    "//@{} | //{}".format(
-                        " | //@".join(URL_ATTRIBUTES),
-                        " | //".join(URL_ELEMENTS),
+def find_urls(directory, csv_filename):
+    with open(csv_filename, "w", newline="") as csv_file:
+        writer = csv_writer(csv_file)
+        writer.writerow(["filename", "url"])
+
+        for filename in listdir(directory):
+            if filename.endswith(".xml"):
+                urls = []
+                filepath = path.join(directory, filename)
+                try:
+                    tree = etree.parse(filepath)
+                    url_elements = tree.xpath(
+                        "//@{} | //{}".format(
+                            " | //@".join(URL_ATTRIBUTES),
+                            " | //".join(URL_ELEMENTS),
+                        )
                     )
-                )
-                urls.extend(url_elements)
-                for url in urls:
-                    if is_valid_url(url):
-                        print(url)
-            except etree.XMLSyntaxError:
-                print(f"Error parsing XML file: {filepath}")
+                    urls.extend(url_elements)
+                    for url in urls:
+                        if is_valid_url(url):
+                            writer.writerow([filename, url])
+                except etree.XMLSyntaxError:
+                    print(f"Error parsing XML file: {filepath}")
 
 
-urls = find_urls(RFC_DIRECTORY)
+current_date = date.today().strftime("%Y-%m-%d")
+
+csv_filename = f"{CSV_DIRECTORY}/urls_{current_date}.csv"
+urls = find_urls(RFC_DIRECTORY, csv_filename)
