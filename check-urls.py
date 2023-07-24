@@ -4,7 +4,6 @@ from os import listdir, path
 from re import compile as re_compile
 from sys import exit
 from urllib.request import urlopen
-from urllib.error import URLError
 
 
 CSV_DIRECTORY = "csv"
@@ -24,7 +23,7 @@ def get_status(url):
     try:
         response = urlopen(url)
         return response.getcode()
-    except URLError as e:
+    except Exception as e:
         return f"Connection error: {str(e)}"
 
 
