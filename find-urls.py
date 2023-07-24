@@ -54,4 +54,4 @@ def find_urls(directory, csv_filename):
 current_date = date.today().strftime("%Y-%m-%d")
 
 csv_filename = f"{CSV_DIRECTORY}/urls_{current_date}.csv"
-urls = find_urls(RFC_DIRECTORY, csv_filename)
+find_urls(RFC_DIRECTORY, csv_filename)
