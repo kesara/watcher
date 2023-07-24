@@ -2,7 +2,7 @@ name: Extract URLs
 
 on:
   workflow_run:
-    workflows: [rfc-rsync]
+    workflows: [Sync RFCs]
     types:
       - completed
   workflow_dispatch:
