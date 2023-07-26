@@ -1,7 +1,8 @@
 from csv import writer as csv_writer
 from datetime import date
-from os import listdir, path
 from lxml import etree
+from os import listdir, path
+from re import compile
 from urllib.parse import urlparse
 
 
@@ -16,6 +17,12 @@ URL_ATTRIBUTES = [
 URL_ELEMENTS = [
     "uri",
 ]
+TEXT_RFC = [f"rfc{i}.txt" for i in range(1, 8650)]
+
+
+url_re = compile(
+    r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+[<>.\s]+"
+)
 
 
 def is_valid_url(url):
@@ -32,6 +39,15 @@ def find_urls(directory, csv_filename):
         writer.writerow(["filename", "url"])
 
         for filename in listdir(directory):
+            if filename.endswith(".txt") and filename in TEXT_RFC:
+                urls = []
+                filepath = path.join(directory, filename)
+                with open(filepath, "r", encoding="iso-8859-1") as file:
+                    urls = url_re.findall(file.read())
+                    for url in urls:
+                        url = url.rstrip("<>),. \n\r")
+                        if is_valid_url(url):
+                            writer.writerow([filename, url])
             if filename.endswith(".xml"):
                 urls = []
                 filepath = path.join(directory, filename)
