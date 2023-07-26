@@ -14,7 +14,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Sync RFCs
+      - name: Sync txt format
+        run: rsync -avz --delete rsync.ietf.org::rfc/rfc[0-9]*.txt ./rfc/
+
+      - name: Sync RFCs in XML format
         run: rsync -avz --delete rsync.ietf.org::rfc/rfc[0-9]*.xml ./rfc/
 
       - name: Commit changes
