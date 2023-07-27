@@ -17,6 +17,7 @@ URL_ATTRIBUTES = [
 URL_ELEMENTS = [
     "uri",
 ]
+TEXT_ONLY = False
 TEXT_RFC = [f"rfc{i}.txt" for i in range(1, 8650)]
 
 
@@ -39,16 +40,16 @@ def find_urls(directory, csv_filename):
         writer.writerow(["filename", "url"])
 
         for filename in listdir(directory):
-            if filename.endswith(".txt") and filename in TEXT_RFC:
+            if TEXT_ONLY and filename.endswith(".txt") and filename in TEXT_RFC:
                 urls = []
                 filepath = path.join(directory, filename)
                 with open(filepath, "r", encoding="iso-8859-1") as file:
                     urls = url_re.findall(file.read())
                     for url in urls:
-                        url = url.rstrip("<>),. \n\r")
+                        url = url.rstrip("<>);,. \n\r")
                         if is_valid_url(url):
                             writer.writerow([filename, url])
-            if filename.endswith(".xml"):
+            if not TEXT_ONLY and filename.endswith(".xml"):
                 urls = []
                 filepath = path.join(directory, filename)
                 try:
@@ -70,4 +71,8 @@ def find_urls(directory, csv_filename):
 current_date = date.today().strftime("%Y-%m-%d")
 
 csv_filename = f"{CSV_DIRECTORY}/urls_{current_date}.csv"
+
+if TEXT_ONLY:
+    csv_filename = f"{CSV_DIRECTORY}/text_urls.csv"
+
 find_urls(RFC_DIRECTORY, csv_filename)
