@@ -27,22 +27,30 @@ def get_status(url):
         return f"Connection error: {str(e)}"
 
 
-def watch_status(url_list_filename, status_filename):
+def check_urls(csv_file, writer):
+    reader = csv_reader(csv_file)
+    next(reader)  # discard header row
+    for row in reader:
+        filename, url = row
+        status = get_status(url)
+        writer.writerow([filename, url, status])
+
+
+def watch_status(url_list_filename, text_url_file, status_filename):
     with open(status_filename, "w", newline="") as status_csv_file:
         writer = csv_writer(status_csv_file)
         writer.writerow(["filename", "url", "status/error"])
 
+        with open(text_url_file, "r") as csv_file:
+            check_urls(csv_file, writer)
+
         with open(url_list_filename, "r") as csv_file:
-            reader = csv_reader(csv_file)
-            next(reader)  # discard header row
-            for row in reader:
-                filename, url = row
-                status = get_status(url)
-                writer.writerow([filename, url, status])
+            check_urls(csv_file, writer)
 
 
 current_date = date.today().strftime("%Y-%m-%d")
 
 latest_url_file = get_latest_urls_file(CSV_DIRECTORY)
+text_url_file = f"{CSV_DIRECTORY}/text_urls.csv"
 status_filename = f"{CSV_DIRECTORY}/url_status_{current_date}.csv"
-watch_status(latest_url_file, status_filename)
+watch_status(latest_url_file, text_url_file, status_filename)
