@@ -9,6 +9,9 @@ from urllib.request import urlopen
 CSV_DIRECTORY = "csv"
 
 
+checked_urls = {}
+
+
 def get_latest_urls_file(directory):
     file_pattern = re_compile(r"urls_\d{4}-\d{2}-\d{2}\.csv")
     files = listdir(directory)
@@ -32,8 +35,12 @@ def check_urls(csv_file, writer):
     next(reader)  # discard header row
     for row in reader:
         filename, url = row
-        status = get_status(url)
-        writer.writerow([filename, url, status])
+        if not url in checked_urls.keys():
+            status = get_status(url)
+            checked_urls[url] = status
+            writer.writerow([filename, url, status])
+        else:
+            writer.writerow([filename, url, checked_urls[url]])
 
 
 def watch_status(url_list_filename, text_url_file, status_filename):
