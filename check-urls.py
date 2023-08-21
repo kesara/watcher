@@ -2,7 +2,7 @@ from csv import reader as csv_reader, writer as csv_writer
 from datetime import date
 from os import listdir, path
 from re import compile as re_compile
-from sys import exit
+from sys import argv, exit
 from urllib.request import urlopen
 
 
@@ -43,13 +43,10 @@ def check_urls(csv_file, writer):
             writer.writerow([filename, url, checked_urls[url]])
 
 
-def watch_status(url_list_filename, text_url_file, status_filename):
+def watch_status(url_list_filename, status_filename):
     with open(status_filename, "w", newline="") as status_csv_file:
         writer = csv_writer(status_csv_file)
         writer.writerow(["filename", "url", "status/error"])
-
-        with open(text_url_file, "r") as csv_file:
-            check_urls(csv_file, writer)
 
         with open(url_list_filename, "r") as csv_file:
             check_urls(csv_file, writer)
@@ -57,7 +54,12 @@ def watch_status(url_list_filename, text_url_file, status_filename):
 
 current_date = date.today().strftime("%Y-%m-%d")
 
-latest_url_file = get_latest_urls_file(CSV_DIRECTORY)
-text_url_file = f"{CSV_DIRECTORY}/text_urls.csv"
+url_file = get_latest_urls_file(CSV_DIRECTORY)
 status_filename = f"{CSV_DIRECTORY}/url_status_{current_date}.csv"
-watch_status(latest_url_file, text_url_file, status_filename)
+
+if len(argv) == 2 and argv[1].lower() == "text":
+    # check text
+    url_file = f"{CSV_DIRECTORY}/text_urls.csv"
+    status_filename = f"{CSV_DIRECTORY}/url_status_text_{current_date}.csv"
+
+watch_status(url_file, status_filename)
