@@ -29,7 +29,7 @@ url_re = compile(
 def is_valid_url(url):
     try:
         result = urlparse(url)
-        return all([len(result.scheme) > 0, result.netloc])
+        return all([len(result.scheme) > 0, result.netloc, '.' in result.netloc])
     except ValueError:
         return False
 
