@@ -30,7 +30,12 @@ def is_valid_url(url):
     try:
         result = urlparse(url)
         return all(
-            [len(result.scheme) > 0, result.netloc, "." in result.netloc]
+            [
+                result.scheme,
+                len(result.scheme) > 0,
+                result.netloc,
+                "." in str(result.netloc),
+            ]
         )
     except ValueError:
         return False
