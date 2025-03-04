@@ -1,10 +1,6 @@
 name: Check Text URLs
 
 on:
-  workflow_run:
-    workflows: [Check URLs]
-    types:
-      - completed
   workflow_dispatch:
 
 jobs:
